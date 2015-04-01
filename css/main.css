@@ -1,0 +1,37 @@
+.container {
+  margin-top: 20px;
+}
+.note {
+  background-color: #fff;
+}
+.panel-heading {
+  padding: 0;
+}
+.panel-body {
+  font-family: 'Anonymous Pro';
+}
+.btn-delete {
+  border: 0;
+  -webkit-border-top-left-radius: 0;
+  -webkit-border-bottom-left-radius: 0;
+  -moz-border-radius-topleft: 0;
+  -moz-border-radius-bottomleft: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.btn-edit {
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  border-color: #DFF0D8;
+  border-right: 1px;
+  margin-right: 1px;
+}
+.btn-create {
+  margin-top: 10px;
+}
+#new-note-text {
+  resize: none;
+  font-family: 'Anonymous Pro';
+}
