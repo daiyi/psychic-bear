@@ -13,7 +13,7 @@ jQuery(document).ready( function() {
       // populate notes
       if (!notes) {
 	console.log("no notes, creating localStorage");
-	localStorage['notes'] = "['I am a note!']";
+	localStorage['notes'] = JSON.stringify(["I am a note!"]);
       }
       else {
 	console.log("populating notes");
@@ -59,9 +59,9 @@ function makeNote(text, mason) {
     localStorage['notes'] = JSON.stringify(noteArray);
     console.log(localStorage);
 
-    mason.destroy(this.closest(".note-wrap"));
+    mason.destroy(this.closest(".note-wrap"));  //TODO
     this.closest(".note-wrap").remove();
-    mason.layout();
+    mason.layout(); //TODO
   });
 
   var noteObj =  noteWrap.append(note.append(noteHeader.append(editButton.append('edit')).append(deleteButton.append('x'))).append(noteBody.append(text)));
