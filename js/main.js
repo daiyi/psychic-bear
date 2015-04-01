@@ -1,19 +1,14 @@
 jQuery(document).ready( function() {
   if (Modernizr.localstorage) {
       var notes = localStorage['notes'];
-      var masonryTile = new Masonry( ".row", {
+      var masonry = new Masonry( "#notes", {
 	  itemSelector: '.note-wrap'
       });
+      masonry.appended($(".note-wrapXX"));  // TODO
 
       console.log(localStorage);
 
-      // bind note create button
-      $(".btn-create").on("click", function(){
-	  var noteContents = $("#new-note-text").val().replace(/\n/g, '<br/>');
-	  addNote(noteContents, masonryTile);
-	  saveNote(noteContents);
-	  $("#new-note-text").val("");
-      });
+      bindCreateButton(masonry);
 
       // populate notes
       if (!notes) {
@@ -22,7 +17,8 @@ jQuery(document).ready( function() {
       }
       else {
 	console.log("populating notes");
-	populateNotes(masonryTile);
+	populateNotes(masonry);
+	masonry.layout();
       }
   } else {
       // no native support for HTML5 storage :(
@@ -30,6 +26,14 @@ jQuery(document).ready( function() {
   }
 });
 
+function bindCreateButton(mason) {
+  $(".btn-create").on("click", function(){
+    var noteContents = $("#new-note-text").val().replace(/\n/g, '<br/>');
+    addNotes([makeNote(noteContents, mason)], mason);
+    saveNote(noteContents);
+    $("#new-note-text").val("");
+  });
+}
 
 function addNotes(notes, mason) {
   var i = 0;
@@ -40,13 +44,25 @@ function addNotes(notes, mason) {
   
 }
 
-function makeNote(text) {
+function makeNote(text, mason) {
   var noteWrap = $("<div>", { class: "col-md-3 col-s-12 note-wrap" });
   var note = $("<div>", { class: "panel panel-success note" });
   var noteHeader = $("<div>", { class: "panel-heading", "align": "right" });
   var noteBody = $("<div>", { class: "panel-body" });
   var deleteButton = $("<button>", { class: "btn-xs btn-default btn-delete", type: "button" });
   var editButton = $("<button>", { class: "btn-xs btn-default btn-edit", type:"button" });
+
+  deleteButton.on("click", function(){
+    var noteArray = JSON.parse(localStorage['notes']);
+    var panelBody = $(this.closest(".panel-heading")).siblings(".panel.body");
+    noteArray.splice(noteArray.indexOf(panelBody.val())-1, 1);
+    localStorage['notes'] = JSON.stringify(noteArray);
+    console.log(localStorage);
+
+    mason.destroy(this.closest(".note-wrap"));
+    this.closest(".note-wrap").remove();
+    mason.layout();
+  });
 
   var noteObj =  noteWrap.append(note.append(noteHeader.append(editButton.append('edit')).append(deleteButton.append('x'))).append(noteBody.append(text)));
 
@@ -66,7 +82,7 @@ function populateNotes(mason) {
   var notes = []
 
   for (i; i < noteArray.length; i++) {
-    notes.push(makeNote(noteArray[i]));
+    notes.push(makeNote(noteArray[i], mason));
   }
 
   addNotes(notes, mason);
