@@ -12,8 +12,8 @@ jQuery(document).ready( function() {
 
       // populate notes
       if (!notes) {
-	console.log("no notes, creating localStorage");
-	localStorage['notes'] = JSON.stringify(["I am a note!"]);
+    	console.log("no notes, creating localStorage");
+	    localStorage['notes'] = JSON.stringify(["I am a note!"]);
       }
       else {
 	console.log("populating notes");
@@ -28,7 +28,7 @@ jQuery(document).ready( function() {
 
 function bindCreateButton(mason) {
   $(".btn-create").on("click", function(){
-    var noteContents = $("#new-note-text").val().replace(/\n/g, '<br/>');
+    var noteContents = $("#new-note-text").val().replace(/\n/g, '<br>');
     addNotes([makeNote(noteContents, mason)], mason);
     saveNote(noteContents);
     $("#new-note-text").val("");
@@ -55,13 +55,13 @@ function makeNote(text, mason) {
   // bind delete button
   deleteButton.on("click", function(){
     var noteArray = JSON.parse(localStorage['notes']);
-    var panelBody = $(this.closest(".panel-heading")).siblings(".panel.body");
+    var panelBody = $(this).closest(".panel-heading").siblings(".panel.body");
     noteArray.splice(noteArray.indexOf(panelBody.val())-1, 1);
     localStorage['notes'] = JSON.stringify(noteArray);
     console.log(localStorage);
 
-    mason.destroy(this.closest(".note-wrap"));  //TODO
-    this.closest(".note-wrap").remove();
+    mason.destroy($(this).closest(".note-wrap"));  //TODO
+    $(this).closest(".note-wrap").remove();
     mason.layout(); //TODO
   });
 
@@ -69,17 +69,19 @@ function makeNote(text, mason) {
   editButton.on ("click", function(){
     $(this).attr("display", "none"); //TODO disables edit button
 
-    var panelBody = $(this.closest(".panel-heading")).siblings(".panel-body");
+    var panelBody = $(this).closest(".panel-heading").siblings(".panel-body");
     var originalNote = panelBody.html();
     panelBody.html("<textarea class='form-control edit-area' rows='4'>" + originalNote.replace(/<br\s*[\/]?>/gi, "\n")  + "</textarea><button class='btn btn-default btn-save pull-right'>save</button>");
 
     // bind save button
     panelBody.children(".btn-save").on("click", function(){
       var noteParent = $(this).closest(".note-wrap");
-      var newNote = noteParent.find("textarea").val();
+      var newNote = noteParent.find("textarea").val().replace(/\n/g, '<br>');
       var noteArray = JSON.parse(localStorage['notes']);
 
       // editing the storage array using indexOf has a problem where if there is an exact duplicate of a note we might replace the wrong one if trying to keep chronological order. to solve this we can enter notes with a time-edited pair to sort. but I don't think sorting is a priority right now (:
+        console.log(originalNote);
+        console.log(noteArray[noteArray.indexOf(originalNote)])
       noteArray[noteArray.indexOf(originalNote)] = newNote;
       localStorage['notes'] = JSON.stringify(noteArray);
       console.log(localStorage);
