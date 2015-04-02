@@ -81,7 +81,6 @@ function makeNote(text, mason) {
 
     // bind edit button
     editButton.on ("click", function(){
-        $(this).attr("display", "none"); //TODO disables edit button
         var originalNote = noteBody.html();
         noteBody.html("<textarea class='form-control edit-area' rows='4'>" + textToRaw(originalNote) + "</textarea><button class='btn btn-default btn-save pull-right'>save</button>");
 
@@ -104,6 +103,9 @@ function makeNote(text, mason) {
             // delete old note
             noteWrap.remove();
         });
+        
+        // removes edit button while in edit mode
+        $(this).remove();
     });
 
     var noteObj =  noteWrap.append(note.append(noteHeader.append(editButton.append('edit')).append(deleteButton.append('delete'))).append(noteBody.append(text)));
