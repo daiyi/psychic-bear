@@ -6,6 +6,7 @@ jQuery(document).ready( function() {
       });
 // TODO MASONRY      masonry.appended($(".note-wrap"));
 
+      console.log("html5 storage detected! initial storage: ");
       console.log(localStorage);
 
       bindCreateButton(masonry);
@@ -16,9 +17,8 @@ jQuery(document).ready( function() {
 	    localStorage['notes'] = JSON.stringify(["I am a note!"]);
       }
       else {
-	console.log("populating notes");
-	populateNotes(masonry);
-//	masonry.layout();
+	    populateNotes(masonry);
+        // masonry.layout();
       }
   } else {
       // no native support for HTML5 storage :(
@@ -29,10 +29,14 @@ jQuery(document).ready( function() {
 function bindCreateButton(mason) {
   $(".btn-create").on("click", function(){
     var noteContents = $("#new-note-text").val().replace(/\n/g, '<br>');
+    saveNoteToStorage(noteContents);
     addNotes([makeNote(noteContents, mason)], mason);
-    saveNote(noteContents);
     $("#new-note-text").val("");
   });
+}
+
+function bindDeleteButton() {
+
 }
 
 function addNotes(notes, mason) {
@@ -54,53 +58,72 @@ function makeNote(text, mason) {
 
   // bind delete button
   deleteButton.on("click", function(){
-    var noteArray = JSON.parse(localStorage['notes']);
-    var panelBody = $(this).closest(".panel-heading").siblings(".panel.body");
-    noteArray.splice(noteArray.indexOf(panelBody.val())-1, 1);
-    localStorage['notes'] = JSON.stringify(noteArray);
-    console.log(localStorage);
-
-    mason.destroy($(this).closest(".note-wrap"));  //TODO
-    $(this).closest(".note-wrap").remove();
-    mason.layout(); //TODO
+    console.log("noteBody.html() = " + noteBody.html());
+    deleteNoteInStorage(noteBody.html());
+    
+    //TODO MASONRY    
+    //  mason.destroy($(this).closest(".note-wrap"));
+    noteWrap.remove();
+    //TODO MASONRY    
+    //  mason.layout();
   });
 
   // bind edit button
   editButton.on ("click", function(){
     $(this).attr("display", "none"); //TODO disables edit button
+    var originalNote = noteBody.html();
+    noteBody.html("<textarea class='form-control edit-area' rows='4'>" + originalNote.replace(/<br\s*[\/]?>/gi, "\n")  + "</textarea><button class='btn btn-default btn-save pull-right'>save</button>");
 
-    var panelBody = $(this).closest(".panel-heading").siblings(".panel-body");
-    var originalNote = panelBody.html();
-    panelBody.html("<textarea class='form-control edit-area' rows='4'>" + originalNote.replace(/<br\s*[\/]?>/gi, "\n")  + "</textarea><button class='btn btn-default btn-save pull-right'>save</button>");
+    console.log("editing note object: " + originalNote);
+    console.log(localStorage['notes']);
 
     // bind save button
-    panelBody.children(".btn-save").on("click", function(){
-      var noteParent = $(this).closest(".note-wrap");
-      var newNote = noteParent.find("textarea").val().replace(/\n/g, '<br>');
-      var noteArray = JSON.parse(localStorage['notes']);
+    noteBody.children(".btn-save").on("click", function(){
+      var newNote = noteWrap.find("textarea").val().replace(/\n/g, '<br>');
 
       // editing the storage array using indexOf has a problem where if there is an exact duplicate of a note we might replace the wrong one if trying to keep chronological order. to solve this we can enter notes with a time-edited pair to sort. but I don't think sorting is a priority right now (:
-        console.log(originalNote);
-        console.log(noteArray[noteArray.indexOf(originalNote)])
-      noteArray[noteArray.indexOf(originalNote)] = newNote;
-      localStorage['notes'] = JSON.stringify(noteArray);
-      console.log(localStorage);
 
-      noteParent.find(".panel-body").html(newNote);
-      //TODO re-enable edit button
+      console.log("newNote = " + newNote);
+      deleteNoteInStorage(originalNote);
+
+      saveNoteToStorage(newNote);      
+      addNotes([makeNote(newNote, mason)], mason);
+
+      console.log("saved note object edits: " + newNote);
+      console.log(localStorage['notes']);
+      
+      // delete old note
+      noteWrap.remove();
     });
   });
 
-  var noteObj =  noteWrap.append(note.append(noteHeader.append(editButton.append('edit')).append(deleteButton.append('x'))).append(noteBody.append(text)));
+  var noteObj =  noteWrap.append(note.append(noteHeader.append(editButton.append('edit')).append(deleteButton.append('delete'))).append(noteBody.append(text)));
 
+  console.log("made note object: " + text);
+  console.log(localStorage['notes']);
   return noteObj;
 }
 
 
-function saveNote(text) {
+function saveNoteToStorage(text) {
   var noteArray = JSON.parse(localStorage['notes']);
   noteArray.push(text);
   localStorage['notes'] = JSON.stringify(noteArray);
+}
+
+function deleteNoteInStorage(text) {
+  console.log("deleting: " + text);
+  var noteArray = JSON.parse(localStorage['notes']);
+  var indexOfText = noteArray.indexOf(text);
+  if (indexOfText >= 0) {
+    console.log("deleting array index: " + indexOfText);
+    noteArray.splice(indexOfText, 1);
+    localStorage['notes'] = JSON.stringify(noteArray);
+  }
+  else {
+    console.log("nope, index of item to be deleted = " + indexOfText);
+    }
+  console.log(localStorage['notes']);
 }
 
 function populateNotes(mason) {
@@ -114,3 +137,4 @@ function populateNotes(mason) {
 
   addNotes(notes, mason);
 }
+
