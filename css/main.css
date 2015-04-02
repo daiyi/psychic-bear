@@ -1,6 +1,20 @@
 .container {
   margin-top: 20px;
 }
+.panel, .panel-success {
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -webkit-box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.1);
+  -moz-box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.1);
+  box-shadow: 0px 2px 5px 1px rgba(0,0,0,0.1);
+}
+.panel:hover {
+  -webkit-box-shadow: 0px 2px 10px 6px rgba(0,0,0,0.1);
+  -moz-box-shadow: 0px 2px 10px 6px rgba(0,0,0,0.1);
+  box-shadow: 0px 2px 10px 6px rgba(0,0,0,0.1);
+}
 .note {
   background-color: #fff;
 }
@@ -38,4 +52,15 @@
 }
 .edit-area {
   resize: none;
+}
+textarea:hover, 
+input:hover, 
+textarea:active, 
+input:active, 
+textarea:focus, 
+input:focus {
+  outline: none;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
 }

@@ -66,11 +66,11 @@ function makeNote(text, mason) {
     var noteBody = $("<div>", { class: "panel-body" });
     var deleteButton = $("<button>", { class: "btn-xs btn-default btn-delete", type: "button" });
     var editButton = $("<button>", { class: "btn-xs btn-default btn-edit", type:"button" });
+    var noteContents = text;
 
     // bind delete button
     deleteButton.on("click", function(){
-        console.log("noteBody.html() = " + noteBody.html());
-        deleteNoteInStorage(noteBody.html());
+        deleteNoteInStorage(noteContents);
         
         //TODO MASONRY    
         //  mason.destroy($(this).closest(".note-wrap"));
@@ -80,8 +80,8 @@ function makeNote(text, mason) {
     });
 
     // bind edit button
-    editButton.on ("click", function(){
-        var originalNote = noteBody.html();
+    editButton.on("click", function(){
+        var originalNote = noteContents;
         noteBody.html("<textarea class='form-control edit-area' rows='4'>" + textToRaw(originalNote) + "</textarea><button class='btn btn-default btn-save pull-right'>save</button>");
 
         console.log("editing note object: " + originalNote);
@@ -91,8 +91,10 @@ function makeNote(text, mason) {
         noteBody.children(".btn-save").on("click", function(){
             var newNote = textToHtml(noteWrap.find("textarea").val());
 
-            console.log("newNote = " + newNote);
             deleteNoteInStorage(originalNote);
+
+            console.log("newNote = " + newNote);
+            noteContents = newNote;
 
             saveNoteToStorage(newNote);      
             addNote(makeNote(newNote, mason), mason);
@@ -123,7 +125,8 @@ function saveNoteToStorage(text) {
 }
 
 function deleteNoteInStorage(text) {
-    console.log("deleting: " + text);
+    console.log("deleting: ");
+    console.log(text);
     var noteArray = JSON.parse(localStorage['notes']);
     var indexOfText = noteArray.indexOf(textToHtml(text));
     if (indexOfText >= 0) {
