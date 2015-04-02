@@ -28,10 +28,14 @@
   border-right: 1px;
   margin-right: 1px;
 }
-.btn-create {
+.btn-create, .btn-save {
   margin-top: 10px;
+  padding: 3px 5px;
 }
 #new-note-text {
   resize: none;
   font-family: 'Anonymous Pro';
+}
+.edit-area {
+  resize: none;
 }
