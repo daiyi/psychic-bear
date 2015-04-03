@@ -10,17 +10,16 @@ jQuery(document).ready( function() {
         console.log(localStorage);
 
         bindCreateButton(masonry);
-
-        // populate notes
+    
         if (!notes) {
     	    console.log("no notes, creating localStorage");
 	        localStorage['notes'] = JSON.stringify(["I am a note!"]);
         }
-        else {
-	        populateNotes(masonry);
-            // masonry.layout();
-        }
-    } else {
+
+	    populateNotes(masonry);
+        // masonry.layout();
+    } 
+    else {
         // no native support for HTML5 storage :(
         console.log("you need a browser that supports HTML5 storage for this site to work ):");
     }
@@ -64,9 +63,20 @@ function makeNote(text, mason) {
     var note = $("<div>", { class: "panel panel-success note" });
     var noteHeader = $("<div>", { class: "panel-heading", "align": "right" });
     var noteBody = $("<div>", { class: "panel-body" });
-    var deleteButton = $("<button>", { class: "btn-xs btn-default btn-delete", type: "button" });
-    var editButton = $("<button>", { class: "btn-xs btn-default btn-edit", type:"button" });
+    var deleteButton = $("<button>", { class: "btn-xs btn-default btn-delete", type: "button" }).append("<span class='glyphicon glyphicon-remove' aria-hidden='true'></span>");
+    var editButton = $("<button>", { class: "btn-xs btn-default btn-edit", type:"button" }).append("<span class='glyphicon glyphicon-pencil' aria-hidden='true'></span>");
+    var textInput = $("<textarea>", { class: "form-control edit-area" });
+    var saveButton = $("<button>", { class: "btn btn-default btn-save pull-right" });
+    var cancelButton = $("<button>", { class: "btn btn-default btn-cancel pull-right" });
+    var editView = $("<div>").append(textInput).append(cancelButton.append("cancel")).append(saveButton.append("save"));
     var noteContents = text;
+
+    // textInput box resizes nicely
+    textInput.on("input", function() {
+//        console.log("textInput height: " + textInput[0].scrollHeight);
+        textInput.css("height", "");
+        textInput.css("height", Math.min(textInput[0].scrollHeight, 200));
+    });
 
     // bind delete button
     deleteButton.on("click", function(){
@@ -81,36 +91,54 @@ function makeNote(text, mason) {
 
     // bind edit button
     editButton.on("click", function(){
-        var originalNote = noteContents;
-        noteBody.html("<textarea class='form-control edit-area' rows='4'>" + textToRaw(originalNote) + "</textarea><button class='btn btn-default btn-save pull-right'>save</button>");
+        textInput.html(textToRaw(noteContents));
+        console.log("##############################");
+        console.log(editView.html());
+ //       noteBody.html("").append(editView);
+        console.log(noteBody.html("").append(editView));
+        textInput.css("height", Math.min(textInput[0].scrollHeight, 200));
 
-        console.log("editing note object: " + originalNote);
+
+        console.log("editing note object: " + noteContents);
         console.log(localStorage['notes']);
 
         // bind save button
-        noteBody.children(".btn-save").on("click", function(){
-            var newNote = textToHtml(noteWrap.find("textarea").val());
+        saveButton.on("click", function(){
+            var newNote = textToHtml(textInput.val().trim());
+            console.log("newNote="+ textToHtml(textInput.val().trim()));
+            // delete note if empty
+            if (newNote == "") {
+                noteWrap.remove();
+            }
+            else {
+                deleteNoteInStorage(noteContents);
 
-            deleteNoteInStorage(originalNote);
+                console.log("newNote = " + newNote);
+                noteContents = newNote;
 
-            console.log("newNote = " + newNote);
-            noteContents = newNote;
+                saveNoteToStorage(newNote);      
+                addNote(makeNote(newNote, mason), mason);
 
-            saveNoteToStorage(newNote);      
-            addNote(makeNote(newNote, mason), mason);
+                console.log("saved note object edits: " + newNote);
+                console.log(localStorage['notes']);
+                
+                // delete old note
+                noteWrap.remove();
+            }
+        });
 
-            console.log("saved note object edits: " + newNote);
-            console.log(localStorage['notes']);
-            
-            // delete old note
-            noteWrap.remove();
+        // bind cancel button, reverts any changes
+        cancelButton.on("click", function(){
+            noteBody.html(noteContents);
+//            noteBody.html("edit canceled");
+            editButton.show();
         });
         
-        // removes edit button while in edit mode
-        $(this).remove();
+        // hides edit button while in edit mode
+        $(this).hide();
     });
 
-    var noteObj =  noteWrap.append(note.append(noteHeader.append(editButton.append('edit')).append(deleteButton.append('delete'))).append(noteBody.append(text)));
+    var noteObj =  noteWrap.append(note.append(noteHeader.append(editButton).append(deleteButton)).append(noteBody.append(text)));
 
     console.log("made note object: " + text);
     console.log(localStorage['notes']);
@@ -119,9 +147,11 @@ function makeNote(text, mason) {
 
 
 function saveNoteToStorage(text) {
-    var noteArray = JSON.parse(localStorage['notes']);
-    noteArray.push(textToHtml(text));
-    localStorage['notes'] = JSON.stringify(noteArray);
+    if (text !== "") {
+        var noteArray = JSON.parse(localStorage['notes']);
+        noteArray.push(textToHtml(text));
+        localStorage['notes'] = JSON.stringify(noteArray);
+    }
 }
 
 function deleteNoteInStorage(text) {
