@@ -13,7 +13,7 @@ jQuery(document).ready( function() {
     
         if (!notes) {
     	    console.log("no notes, creating localStorage");
-	        localStorage['notes'] = JSON.stringify(["I am a note!"]);
+            localStorage['notes'] = JSON.stringify(["I am a note!"]);
         }
 
 	    populateNotes(masonry);
@@ -92,8 +92,8 @@ function makeNote(text, mason) {
     // bind edit button
     editButton.on("click", function(){
         textInput.html(textToRaw(noteContents));
-        console.log("##############################");
-        console.log(editView.html());
+//        console.log("##############################");
+//        console.log(editView.html());
  //       noteBody.html("").append(editView);
         console.log(noteBody.html("").append(editView));
         textInput.css("height", Math.min(textInput[0].scrollHeight, 200));
