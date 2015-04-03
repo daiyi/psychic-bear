@@ -23,6 +23,7 @@
 }
 .panel-body {
   font-family: 'Anonymous Pro';
+  word-wrap: break-word;
 }
 .btn-delete {
   border: 0;
